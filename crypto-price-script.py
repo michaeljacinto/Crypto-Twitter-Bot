@@ -5,6 +5,7 @@ import requests
 from twython import Twython
 from datetime import datetime
 import schedule, time
+import os.path
 
 
 def main():
@@ -15,7 +16,7 @@ def main():
         while True:
             schedule.run_pending()
 
-    except:
+    except Exception as err:
         print()
         print('Usage: python crypto-price-script <min> <coin> <coin>*')
         print('<min>: required, must be a number')
@@ -25,9 +26,11 @@ def main():
         print('e.g. python crypto-price-script 5 BTC ETH')
         print('This will tweet the price of BTC and ETH every 5 minutes to:'
               ' https://twitter.com/script_crypto')
+        print(str(err))
 
 
 def tweet_prices():
+
     with open('credentials.json') as f:
         credentials = json.load(f)
 
@@ -42,23 +45,50 @@ def tweet_prices():
     now = datetime.now()
     current_datetime = now.strftime("%m/%d/%Y, %H:%M")
     cancel_tweet = False
+    data = {}
+    currency = 'CAD'
 
     try:
-        r = requests.get('https://min-api.cryptocompare.com/data/pricemulti?fsyms=' + coins + '&tsyms=CAD').json()
-        tweet = ('Prices are in CAD as of ' + str(current_datetime))
+        r = requests.get('https://min-api.cryptocompare.com/data/pricemulti?fsyms=' + coins + '&tsyms=' + currency).json()
+        tweet = ('Prices are in ' + currency + ' as of ' + str(current_datetime))
+        data["current_datetime"] = current_datetime
 
         for index, arg in enumerate(args, 0):
-            message = str(arg + ': ' + str(r[arg]['CAD']))
+            message = str(arg + ': ' + str(r[arg][currency]))
             tweet = tweet + '\n' + message
+            data[arg] = r[arg][currency]
+
+        tweet_history(data, 'data.json')
+
+        print(data)
 
     except KeyError as err:
         tweet = 'The ticker: ' + str(err) + ' is invalid'
         cancel_tweet = True
 
+    except Exception as err:
+        print(str(err))
+
     if not cancel_tweet:
         api.update_status(status=tweet)
 
     print(tweet)
+
+
+def tweet_history(tweet_obj, file_name):
+
+    if os.path.isfile(file_name):
+        with open('data.json') as f:
+            data = json.load(f)
+
+        data.update(tweet_obj)
+
+        with open('data.json', 'a') as f:
+            json.dump(data, f)
+
+    else:
+        with open(file_name, 'w+') as f:
+            json.dump(tweet_obj, f)
 
 
 if __name__ == "__main__":
