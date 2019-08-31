@@ -6,17 +6,28 @@ from twython import Twython
 from datetime import datetime
 import schedule, time
 import os.path
-
+from spreadsheet import create_worksheet, open_spreadsheet
 
 def main():
 
+    # data_colleciton = []
+
     try:
-        schedule.every(int(sys.argv[1])).minutes.do(tweet_prices)
+        # data_collection = []
+        data = tweet_prices()
+        schedule.every(int(sys.argv[1])).minutes.do(data)
+
+
+        data_collection.append(data)
 
         while True:
             schedule.run_pending()
 
+    except KeyboardInterrupt:
+            create_worksheet(data_collection)
+
     except Exception as err:
+
         print()
         print('Usage: python crypto-price-script <min> <coin> <coin>*')
         print('<min>: required, must be a number')
@@ -44,7 +55,7 @@ def tweet_prices():
     coins = ','.join(args)
     now = datetime.now()
     current_datetime = now.strftime("%m/%d/%Y, %H:%M")
-    cancel_tweet = False
+    cancel_tweet = True
     data = {}
     currency = 'CAD'
 
@@ -58,37 +69,53 @@ def tweet_prices():
             tweet = tweet + '\n' + message
             data[arg] = r[arg][currency]
 
-        tweet_history(data, 'data.json')
-
         print(data)
+        return data
+
+    # except KeyboardInterrupt as err:
+    #     return data
 
     except KeyError as err:
         tweet = 'The ticker: ' + str(err) + ' is invalid'
-        cancel_tweet = True
+        cancel_tweet = False
 
     except Exception as err:
         print(str(err))
 
-    if not cancel_tweet:
+    if cancel_tweet:
         api.update_status(status=tweet)
 
-    print(tweet)
+
+    # print(tweet)
 
 
-def tweet_history(tweet_obj, file_name):
+def google_sheets_update(data):
 
-    if os.path.isfile(file_name):
-        with open('data.json') as f:
-            data = json.load(f)
+    counter = 1
 
-        data.update(tweet_obj)
+    for index, value in enumerate(data, 1):
 
-        with open('data.json', 'a') as f:
-            json.dump(data, f)
 
-    else:
-        with open(file_name, 'w+') as f:
-            json.dump(tweet_obj, f)
+        worksheet.update_cell(counter, idx, value)
+        counter += 1
+        print(value)
+
+
+
+# def tweet_history(tweet_obj, file_name):
+#
+#     if os.path.isfile(file_name):
+#         with open('data.json') as f:
+#             data = json.load(f)
+#
+#         data.update(tweet_obj)
+#
+#         with open('data.json', 'a') as f:
+#             json.dump(data, f)
+#
+#     else:
+#         with open(file_name, 'w+') as f:
+#             json.dump(tweet_obj, f)
 
 
 if __name__ == "__main__":
