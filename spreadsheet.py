@@ -29,16 +29,14 @@ def open_spreadsheet():
         client = gspread.authorize(creds)
         spreadsheet = client.create(spreadsheet_name)
         spreadsheet.share(email, perm_type='user', role='writer')
-        # print('Please allow access to this spreadsheet via your email, then re-run the script.')
         result = False
 
     return result
 
 
-def create_worksheet():
+def create_worksheet(data):
 
     spreadsheet = open_spreadsheet()
-    data = {'current_datetime': '08/30/2019, 00:10', 'ETH': 223.78, 'BTC': 12636}
     run_once = True
 
     if spreadsheet is False:
@@ -47,38 +45,38 @@ def create_worksheet():
     else:
 
         now = datetime.now()
-        current_datetime = now.strftime("%m/%d/%Y, %H:%M")
-        worksheet = spreadsheet.add_worksheet(title=current_datetime, rows="200", cols="20")
+        current_datetime = now.strftime("%m/%d/%Y")
 
-        values_list = worksheet.row_values(1)
+        try:
+            worksheet = spreadsheet.add_worksheet(title=current_datetime, rows="200", cols="20")
 
-        print(values_list[0] is IndexError)
+            counter = 1
 
-        # api_time = now.strftime('%H:%M')
+            while run_once:
+                for idx, value in enumerate(data, 1):
+                    worksheet.update_cell(counter, idx, value)
+                    print(value)
+                    run_once = False
 
-        counter = 1
+        except Exception:
+            worksheet = spreadsheet.worksheet(current_datetime)
 
-        while run_once:
-            for idx, value in enumerate(data, 1):
-                worksheet.update_cell(counter, idx, value)
-                counter += 1
-                # worksheet.update_cell(counter, idx, data[value])
-                print(value)
-                run_once = False
+        return worksheet
 
-            return worksheet
-
-
-create_worksheet()
 
 def populate_cells(data):
 
-    worksheet = create_worksheet()
-    for idx, value in enumerate(data, 1):
-        worksheet.update_cell(counter, idx, value)
-        counter += 1
-        # worksheet.update_cell(counter, idx, data[value])
-        print(value)
-        # run_once = False
+    counter = 2
+    worksheet = create_worksheet(data)
+    values = worksheet.row_values(counter)
 
-        return worksheet
+    while values:
+        counter += 1
+        values = worksheet.row_values(counter)
+
+    for idx, value in enumerate(data, 1):
+        worksheet.update_cell(counter, idx, data[value])
+
+        print(value)
+
+    return worksheet
