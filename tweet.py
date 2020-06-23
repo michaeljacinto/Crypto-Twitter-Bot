@@ -1,57 +1,50 @@
-# import requests
-# import alpha_vantage
-# import pandas as pd
+#!/usr/bin/python
 
-# df = pd.DataFrame()
-# API_URL = "https://www.alphavantage.co/query"
-
-# #symbols= ["IBM", "MSFT", "LVLT"]
-# symbols = "IBM,MSFT,LVLT"
-# data = {
-#     "function": "BATCH_STOCK_QUOTES",
-#     "symbols": symbols,
-#     "apikey": "XXX",
-# }
-
-# response = requests.get(API_URL, params=data)
-
-
-# print(response.json())
-
-# s = 'mike'
-
-# print('sadsa %s' % s)
 import sys
-import schedule
-# something = input("DSADSADA: ")
-
-# new = something.split(" ")
-
-# print(new[1])
-
-# he = [1, 2, 3, 4, 5, 6]
-
-# print(he[2:])
-
-# market_option = input(
-#     "Enter 'c' if you would to receive or tweet cryptocurrency messages or 's' for stock market messages...\n")
-
-# if (market_option != 'c' and market_option != 's'):
-#     print('true')
-# market_option = input(
-#     "That is not a valid option. Please input 'c' for cryptocurrency or 's' for stock market.")
-
-# user_arguments = ['dsadsa', 'cdsaacs', 'cdsacsddsa', 'dsd']
-# args = [i.upper() for i in user_arguments[1:]]
-# print(args)
+from PyQt5.QtWidgets import (QWidget, QLabel, QLineEdit,
+                             QTextEdit, QGridLayout, QApplication, QPushButton)
 
 
-def ok():
-    return 'hi'
+class Controller(QWidget):
+
+    def __init__(self):
+        super().__init__()
+
+        self.initUI()
+
+    def initUI(self):
+        title = QLabel('Title')
+        author = QLabel('Author')
+        review = QLabel('Review')
+
+        titleEdit = QLineEdit()
+        authorEdit = QLineEdit()
+        # reviewEdit = QTextEdit()
+
+        grid = QGridLayout()
+        grid.setSpacing(10)
+
+        grid.addWidget(title, 1, 0)
+        grid.addWidget(titleEdit, 1, 1)
+
+        grid.addWidget(author, 2, 0)
+        grid.addWidget(authorEdit, 2, 1)
+
+        # grid.addWidget(review, 3, 0)
+        # grid.addWidget(reviewEdit, 3, 1, 5, 1)
+
+        self.setLayout(grid)
+
+        self.setGeometry(300, 300, 350, 300)
+        self.setWindowTitle('Review')
+        self.show()
 
 
-# x = schedule.every(1).minutes.do(ok)
-# print(x)
+def main():
+    app = QApplication(sys.argv)
+    ex = Controller()
+    sys.exit(app.exec_())
 
-r = ok()
-print(r)
+
+if __name__ == '__main__':
+    main()
