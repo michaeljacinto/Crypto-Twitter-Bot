@@ -1,2 +1,8 @@
 credentials.json
 data.json
+QPushButton.py
+__pycache__/
+gui.py
+gui2.py
+gui_old.py
+market-price-bot copy.py
