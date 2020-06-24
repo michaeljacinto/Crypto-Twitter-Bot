@@ -4,6 +4,7 @@ import sys
 from PyQt5 import QtGui
 from PyQt5.QtCore import QRect
 from PyQt5 import QtCore
+import market_price_bot as mpb
 
 
 class Window(QDialog):
@@ -16,9 +17,7 @@ class Window(QDialog):
         self.width = 400
         self.height = 100
         self.iconName = "icon.png"
-        # self.InitWindow()
 
-    # def InitWindow(self):
         self.setWindowIcon(QtGui.QIcon(self.iconName))
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
@@ -41,34 +40,43 @@ class TabCrypto(QWidget):
         coinsLabel = QLabel("Coins: ")
         coinsLabel.setFont(QtGui.QFont("Sanserif", 10))
         vbox.addWidget(coinsLabel)
-        coinsEdit = QLineEdit()
-        coinsEdit.setToolTip("Enter coins here. E.g: BTC ETH LTC")
-        coinsEdit.setFont(QtGui.QFont("Sanserif", 10))
-        vbox.addWidget(coinsEdit)
+        self.coinsEdit = QLineEdit()
+        self.coinsEdit.setToolTip("Enter coins here. E.g: BTC ETH LTC")
+        self.coinsEdit.setFont(QtGui.QFont("Sanserif", 10))
+        vbox.addWidget(self.coinsEdit)
 
         coinsLabelMinutes = QLabel("Minutes: ")
         coinsLabelMinutes.setFont(QtGui.QFont("Sanserif", 10))
         vbox.addWidget(coinsLabelMinutes)
-        spinBox = QSpinBox()
-        vbox.addWidget(spinBox)
+        self.spinBox = QSpinBox()
+        vbox.addWidget(self.spinBox)
         self.setLayout(vbox)
 
-        button_1 = QPushButton("Twitter", self)
-        # size of button
-        # button_1.setGeometry(QRect(100, 100, 80, 25))
-        button_1.setIcon(QtGui.QIcon("twitter.png"))
-        button_1.setIconSize(QtCore.QSize(40, 40))
-        # button_1.clicked.connect(self.ClickMe)
-        button_1.setMinimumHeight(40)
-        vbox.addWidget(button_1)
+        twitterButton = QPushButton("Twitter", self)
+        twitterButton.setIcon(QtGui.QIcon("twitter.png"))
+        twitterButton.setIconSize(QtCore.QSize(40, 40))
+        twitterButton.clicked.connect(self.ClickCryptoTweet)
+        twitterButton.setMinimumHeight(40)
+        vbox.addWidget(twitterButton)
 
-        button_2 = QPushButton("Text", self)
-        # button_2.setGeometry(QRect(50, 100, 80, 25))
-        button_2.setIcon(QtGui.QIcon("text-message.png"))
-        button_2.setIconSize(QtCore.QSize(40, 40))
-        # button_2.clicked.connect(self.ClickMe)
-        button_2.setMinimumHeight(40)
-        vbox.addWidget(button_2)
+        textButton = QPushButton("Text", self)
+        textButton.setIcon(QtGui.QIcon("text-message.png"))
+        textButton.setIconSize(QtCore.QSize(40, 40))
+        textButton.clicked.connect(self.ClickCryptoText)
+        textButton.setMinimumHeight(40)
+        vbox.addWidget(textButton)
+
+    def ClickCryptoTweet(self):
+        coin_args = self.coinsEdit.text()
+        mins_args = self.spinBox.value()
+        message = mpb.get_crypto_data(coin_args)
+        mpb.tweet_data(message)
+
+    def ClickCryptoText(self):
+        coin_args = self.coinsEdit.text()
+        mins_args = self.spinBox.value()
+        message = mpb.get_crypto_data(coin_args)
+        mpb.text_data(message)
 
 
 class TabStocks(QWidget):
@@ -80,34 +88,45 @@ class TabStocks(QWidget):
         stockLabel = QLabel("Stock: ")
         stockLabel.setFont(QtGui.QFont("Sanserif", 10))
         vbox.addWidget(stockLabel)
-        stockEdit = QLineEdit()
-        stockEdit.setToolTip("Only one stock ticker is supported. E.g: AAPL")
-        stockEdit.setFont(QtGui.QFont("Sanserif", 10))
-        vbox.addWidget(stockEdit)
+        self.stockEdit = QLineEdit()
+        self.stockEdit.setToolTip(
+            "Only one stock ticker is supported. E.g: AAPL")
+        self.stockEdit.setFont(QtGui.QFont("Sanserif", 10))
+        vbox.addWidget(self.stockEdit)
 
         stockLabelMinutes = QLabel("Minutes: ")
         stockLabelMinutes.setFont(QtGui.QFont("Sanserif", 10))
         vbox.addWidget(stockLabelMinutes)
-        spinBox = QSpinBox()
-        vbox.addWidget(spinBox)
+        self.spinBox = QSpinBox()
+        vbox.addWidget(self.spinBox)
         self.setLayout(vbox)
 
-        button_1 = QPushButton("Twitter", self)
-        # size of button
-        # button_1.setGeometry(QRect(100, 100, 80, 25))
-        button_1.setIcon(QtGui.QIcon("twitter.png"))
-        button_1.setIconSize(QtCore.QSize(40, 40))
-        # button_1.clicked.connect(self.ClickMe)
-        button_1.setMinimumHeight(40)
-        vbox.addWidget(button_1)
+        self.twitterButton = QPushButton("Twitter", self)
+        self.twitterButton.setIcon(QtGui.QIcon("twitter.png"))
+        self.twitterButton.setIconSize(QtCore.QSize(40, 40))
+        self.twitterButton.clicked.connect(self.ClickStockTweet)
+        self.twitterButton.setMinimumHeight(40)
+        vbox.addWidget(self.twitterButton)
 
-        button_2 = QPushButton("Text", self)
-        # button_2.setGeometry(QRect(50, 100, 80, 25))
-        button_2.setIcon(QtGui.QIcon("text-message.png"))
-        button_2.setIconSize(QtCore.QSize(40, 40))
-        # button_2.clicked.connect(self.ClickMe)
-        button_2.setMinimumHeight(40)
-        vbox.addWidget(button_2)
+        textButton = QPushButton("Text", self)
+        textButton.setIcon(QtGui.QIcon("text-message.png"))
+        textButton.setIconSize(QtCore.QSize(40, 40))
+        textButton.clicked.connect(self.ClickStockText)
+        textButton.setMinimumHeight(40)
+        vbox.addWidget(textButton)
+
+    def ClickStockTweet(self):
+        stock_args = self.stockEdit.text()
+        mins_args = self.spinBox.value()
+        message = mpb.get_stock_data(stock_args)
+        self.twitterButton.setText("Hi")
+        mpb.tweet_data(message)
+
+    def ClickStockText(self):
+        stock_args = self.stockEdit.text()
+        mins_args = self.spinBox.value()
+        message = mpb.get_stock_data(stock_args)
+        mpb.text_data(message)
 
 
 if __name__ == "__main__":

@@ -16,7 +16,7 @@ from twilio.rest import Client
 def get_crypto_data(user_arguments):
 
     user_coins = user_arguments.split(" ")
-    args = [i.upper() for i in user_coins[1:]]
+    args = [i.upper() for i in user_coins[0:]]
     coins = ','.join(args)
     now = datetime.now()
     current_datetime = now.strftime("%m/%d/%Y, %H:%M")
@@ -57,7 +57,8 @@ def get_stock_data(user_arguments):
         credentials = json.load(f)
 
     stock_token = credentials["Finnhub"]["token"]
-    user_stock = user_arguments.split(" ")[1].upper()
+    # user_stock = user_arguments.split(" ")[1].upper()
+    user_stock = user_arguments.upper()
 
     try:
         r = requests.get(
@@ -204,6 +205,10 @@ def main():
 
     except Exception as err:
         print(str(err))
+
+
+def test(test):
+    print('argument' + test)
 
 
 if __name__ == "__main__":
